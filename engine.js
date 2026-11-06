@@ -9,36 +9,49 @@ const LIB={"de-DE":{"Basics":[["hallo","hello"],["ja","yes"],["nein","no"],["bit
 "da-DK":{"Home":[["hus","house"],["værelse","room"],["køkken","kitchen"],["badeværelse","bathroom"],["seng","bed"],["dør","door"],["vindue","window"],["stol","chair"]],"Hobbies":[["lytte til musik","to listen to music"],["spille fodbold","to play football"],["læse","to read"],["tegne","to draw"],["danse","to dance"],["synge","to sing"],["svømme","to swim"],["tage billeder","to take photos"]],"Daily Routine":[["stå op","to get up"],["spise morgenmad","to eat breakfast"],["gå i skole","to go to school"],["studere","to study"],["spise frokost","to eat lunch"],["gå hjem","to go home"],["spise aftensmad","to eat dinner"],["gå i seng","to go to bed"]],"Places":[["by","city"],["park","park"],["station","train station"],["supermarked","supermarket"],["biograf","cinema"],["hospital","hospital"],["restaurant","restaurant"],["strand","beach"]],"Clothes":[["skjorte","shirt"],["bukser","trousers"],["kjole","dress"],["sko","shoes"],["jakke","jacket"],["trøje","sweater"],["hat","hat"],["sokker","socks"]],"Weather":[["solrigt","sunny"],["overskyet","cloudy"],["blæsende","windy"],["kold","cold"],["varm","warm"],["meget varm","hot"],["det regner","it is raining"],["det sner","it is snowing"]],"Adjectives":[["glad","happy"],["trist","sad"],["hurtig","fast"],["langsom","slow"],["ung","young"],["gammel","old"],["smuk","beautiful"],["interessant","interesting"]],"Numbers & Time":[["en","one"],["to","two"],["tre","three"],["ti","ten"],["i dag","today"],["i morgen","tomorrow"],["i går","yesterday"],["klokken","the time / clock"]]},
 "en-US":{"Home":[["house","casa"],["room","habitación"],["kitchen","cocina"],["bathroom","baño"],["bed","cama"],["door","puerta"],["window","ventana"],["chair","silla"]],"Hobbies":[["listen to music","escuchar música"],["play football","jugar al fútbol"],["read","leer"],["draw","dibujar"],["dance","bailar"],["sing","cantar"],["swim","nadar"],["take photos","hacer fotos"]],"Daily Routine":[["get up","levantarse"],["eat breakfast","desayunar"],["go to school","ir a la escuela"],["study","estudiar"],["eat lunch","almorzar"],["go home","volver a casa"],["eat dinner","cenar"],["go to bed","acostarse"]],"Places":[["city","ciudad"],["park","parque"],["train station","estación"],["supermarket","supermercado"],["cinema","cine"],["hospital","hospital"],["restaurant","restaurante"],["beach","playa"]],"Clothes":[["shirt","camisa"],["trousers","pantalones"],["dress","vestido"],["shoes","zapatos"],["jacket","chaqueta"],["sweater","jersey"],["hat","sombrero"],["socks","calcetines"]],"Weather":[["sunny","soleado"],["cloudy","nublado"],["windy","ventoso"],["cold","frío"],["warm","cálido"],["hot","caluroso"],["it is raining","llueve"],["it is snowing","nieva"]],"Adjectives":[["happy","feliz"],["sad","triste"],["fast","rápido"],["slow","lento"],["young","joven"],["old","viejo"],["beautiful","bonito"],["interesting","interesante"]],"Numbers & Time":[["one","uno"],["two","dos"],["three","tres"],["ten","diez"],["today","hoy"],["tomorrow","mañana"],["yesterday","ayer"],["time","hora"]]}
 };Object.keys(EXTRA).forEach(l=>Object.assign(LIB[l],EXTRA[l]));
-const portraitMaze=window.matchMedia('(max-width:760px) and (orientation:portrait)').matches;const C=portraitMaze?15:33,R=portraitMaze?25:19,S=32;cv.width=C*S;cv.height=R*S;let maze=[],dots=new Set(),pellets=new Set(),player,actors=[],vocab=[],queue=[],current,score=0,lives=3,round=1,done=0,misses={},step=.155,acc=0,last=0,raf=0,running=false,paused=false,soundOn=true,lang='de-DE',audioCtx=null,freeze=0,invuln=0,turnWanted={x:0,y:0},toastTimer=0;
-const base=[
-'#################################',
-'#...............#...............#',
-'#.###.#####.###.#.###.#####.###.#',
-'#o..#.....#.....#.....#.....#..o#',
-'###.#.###.#.###...###.#.###.#.###',
-'#...#...#...#.......#...#...#...#',
-'#.#####.###.#.#####.#.###.#####.#',
-'#.......#...#...#...#...#.......#',
-'#.#####.#.#####.#.#####.#.#####.#',
-'.........#.............#.........',
-'#.#####.#.#####.#.#####.#.#####.#',
-'#.......#...#...#...#...#.......#',
-'#.#####.###.#.#####.#.###.#####.#',
-'#...#...#...#.......#...#...#...#',
-'###.#.###.#.###...###.#.###.#.###',
-'#o..#.....#.....#.....#.....#..o#',
-'#.###.#####.###.#.###.#####.###.#',
-'#...............#...............#',
-'#################################'];
-/* Open, readable portrait labyrinth with fewer barriers and wider routes. */
-const portraitBase=Array.from({length:25},(_,y)=>{
- let row=Array.from({length:15},(_,x)=>x===0||x===14||y===0||y===24?'#':'.');
- if([3,7,11,15,19,22].includes(y))for(let x of [3,4,5,9,10,11])row[x]='#';
- if([4,5,8,9,13,14,17,18,20,21].includes(y))for(let x of [4,10])row[x]='#';
- if([5,12,20].includes(y)){row[0]='.';row[14]='.';}
- if([3,21].includes(y)){row[2]='o';row[12]='o';}
- return row.join('');
-});
+let maze=[],dots=new Set(),pellets=new Set(),player,actors=[],vocab=[],queue=[],current,score=0,lives=3,round=1,done=0,misses={},step=.155,acc=0,last=0,raf=0,running=false,paused=false,soundOn=true,lang='de-DE',audioCtx=null,freeze=0,invuln=0,turnWanted={x:0,y:0},toastTimer=0;
+const base = [
+  '#########################',
+  '#.......................#',
+  '#o.####..#######..####.o#',
+  '#.....#.....#.....#.....#',
+  '#.##..####..#..####..##.#',
+  '#...#....#.....#....#...#',
+  '#..###..###...###..###..#',
+  '.........................',
+  '#..###..###...###..###..#',
+  '#...#....#.....#....#...#',
+  '#.##..####..#..####..##.#',
+  '#.....#.....#.....#.....#',
+  '#o.####..#######..####.o#',
+  '#.......................#',
+  '#########################'
+];
+const portraitBase = [
+  '###########',
+  '#.........#',
+  '#o.......o#',
+  '#.##...##.#',
+  '#..#...#..#',
+  '#.........#',
+  '#.##...##.#',
+  '#..#...#..#',
+  '#.........#',
+  '...........',
+  '#.........#',
+  '#.##...##.#',
+  '#..#...#..#',
+  '#.........#',
+  '#.##...##.#',
+  '#..#...#..#',
+  '#o.......o#',
+  '#.........#',
+  '###########'
+];
+const portraitMaze=window.matchMedia('(max-width:760px) and (orientation:portrait)').matches;const board = portraitMaze ? portraitBase : base;
+const C = board[0].length, R = board.length, S = 32;
+const tunnelRow = Math.floor(R / 2);
+cv.width=C*S;cv.height=R*S;
 function parse(t){return t.replace(/\r/g,'').split('\n').map(x=>x.split('\t')).filter(x=>x.length>=2&&x[0].trim()&&x.slice(1).join('\t').trim()).map(x=>[x[0].trim(),x.slice(1).join('\t').trim()])}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function categories(){let s=E('category'),l=E('language').value;s.innerHTML='<option value="custom">Custom / Paste your own</option>';Object.keys(LIB[l]).forEach(k=>{let o=document.createElement('option');o.value=k;o.textContent=k;s.appendChild(o)});s.value='Basics';loadCategory()}
@@ -49,18 +62,18 @@ function voiceStatus(){let v=voice();E('voiceCheck').textContent=v?'✓ VOICE: '
 function speak(t){if(soundOn)window.parent.postMessage({type:'BT_EATER_SPEAK',text:t,language:lang},location.origin)}
 function beep(f,d){if(!soundOn)return;try{let A=window.AudioContext||window.webkitAudioContext;if(!A)return;if(!audioCtx)audioCtx=new A();if(audioCtx.state==='suspended')audioCtx.resume();let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(.035,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d)}catch(e){}}
 function flash(t,ok){E('toast').textContent=t;E('toast').style.color=ok?'#7fff75':'#ff7796';clearTimeout(toastTimer);toastTimer=setTimeout(()=>E('toast').textContent='',1100)}
-function valid(x,y){if(y<0||y>=R)return false;if(x<0||x>=C)return y===(portraitMaze?12:9)&&maze[y][(x+C)%C]!== '#';return maze[y][x]!== '#'}
+function valid(x,y){if(y<0||y>=R)return false;if(x<0||x>=C)return y===tunnelRow&&maze[y][(x+C)%C]!== '#';return maze[y][x]!== '#'}
 function adj(p){return [[1,0],[-1,0],[0,1],[0,-1]].filter(d=>valid(p.x+d[0],p.y+d[1])).map(d=>({x:d[0],y:d[1]}))}
 function nextPos(p,d){return{x:(p.x+d.x+C)%C,y:p.y+d.y}}
 function key(p){return p.x+','+p.y}
 function openTiles(){let a=[],seen=new Set([key(player)]),todo=[{x:player.x,y:player.y}];while(todo.length){let p=todo.shift();a.push(p);for(let d of adj(p)){let q=nextPos(p,d),k=key(q);if(!seen.has(k)){seen.add(k);todo.push(q)}}}return a}
 function distance(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)}
-function startMaze(){maze=(portraitMaze?portraitBase:base).map(s=>s.split(''));dots.clear();pellets.clear();for(let y=0;y<R;y++)for(let x=0;x<C;x++){if(maze[y][x]==='.'||maze[y][x]==='o'){(maze[y][x]==='o'?pellets:dots).add(x+','+y);maze[y][x]=' '}}}
+function startMaze(){maze=board.map(s=>s.split(''));dots.clear();pellets.clear();for(let y=0;y<R;y++)for(let x=0;x<C;x++){if(maze[y][x]==='.'||maze[y][x]==='o'){(maze[y][x]==='o'?pellets:dots).add(x+','+y);maze[y][x]=' '}}}
 function buildQueue(){queue=shuffle(vocab).concat(shuffle(vocab.filter(v=>(misses[v.id]||0)>0)));done=0}
 function newQuestion(){if(!queue.length){round++;step=Math.max(.29,step*.97);buildQueue();flash('ROUND '+round+' · NEXT LEVEL!',true)}current=queue.shift();let pool=shuffle(vocab.filter(v=>v.id!==current.id&&v.target!==current.target));if(pool.length<3){end('NOT ENOUGH DISTINCT WORDS');return}let choices=shuffle([current,...pool.slice(0,3)]);let tiles=shuffle(openTiles().filter(p=>distance(p,player)>7&&p.y>1&&p.y<R-1));actors=choices.map((pair,i)=>({pair,correct:pair.id===current.id,x:tiles[i].x,y:tiles[i].y,dir:{x:0,y:0},color:['#ed6799','#62d7ef','#ff9d56','#a990ff'][i]}));freeze=.55;hud()}
 function hud(){E('score').textContent=score;E('lives').textContent='♥'.repeat(Math.max(0,lives));E('progress').textContent='ROUND '+round+' · '+Math.min(done,vocab.length)+'/'+vocab.length;E('target').textContent='FIND: '+(current?current.prompt.toUpperCase():'')}
 let answerFeedback='',answerFeedbackLeft=0;
-function resetPlayer(){player={x:portraitMaze?7:16,y:portraitMaze?12:9,dir:{x:0,y:0}};turnWanted={x:0,y:0};invuln=1.3}
+function resetPlayer(){player={x:Math.floor(C / 2),y:tunnelRow,dir:{x:0,y:0}};turnWanted={x:0,y:0};invuln=1.3}
 function start(){let a=parse(E('words').value);if(a.length<5||new Set(a.map(v=>v[0].toLowerCase())).size<4){E('error').textContent='Use at least 5 pairs with 4 distinct answers.';window.parent.postMessage({type:'BT_EATER_START_FAILED'},location.origin);return}E('error').textContent='';lang=E('language').value;vocab=a.map((v,i)=>({id:i,target:v[1],prompt:v[0]}));score=0;lives=3;round=1;misses={};step=.42;acc=0;last=0;freeze=0;invuln=0;answerFeedback='';answerFeedbackLeft=0;running=true;paused=false;startMaze();resetPlayer();buildQueue();newQuestion();E('menu').classList.remove('active');E('game').classList.add('active');E('gameOver').classList.remove('show');E('pauseOverlay').classList.remove('show');E('pause').textContent='PAUSE';cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
 function end(msg){running=false;E('finalScore').textContent=(msg||'SCORE')+': '+score;E('gameOver').classList.add('show')}
 function hurt(t){if(invuln>0)return;lives--;beep(140,.23);flash(t,false);if(lives<=0){hud();end('FINAL SCORE');return}resetPlayer();freeze=.6;hud()}
