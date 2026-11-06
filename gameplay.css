@@ -47,3 +47,7 @@ html, body { height: 100%; overflow: hidden; background: #1d365e; }
   #game .hud { grid-template-columns: 1fr 1fr; gap: 4px; }
   #game .prompt { grid-column: 1 / -1; grid-row: 1; }
 }
+.shell-managed .app > h1,
+.shell-managed #game .toolbar,
+.shell-managed #again,
+.shell-managed #overMenu { display: none; }
