@@ -1,16 +1,16 @@
 html, body { height: 100%; overflow: hidden; background: #1d365e; }
 .app {
-  width: 100%; max-width: none; height: 100dvh; margin: 0;
+  width: 100%; max-width: none; position: fixed; inset: 0; height: auto; margin: 0; overflow: clip;
   padding: 8px max(8px, env(safe-area-inset-right))
     max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
   display: flex; flex-direction: column; border: 0; box-shadow: none; background: transparent;
 }
 .app > h1 {
-  color: #7cdd63; text-shadow: 3px 3px #101a33;
+  flex: none; color: #7cdd63; text-shadow: 3px 3px #101a33;
   font-size: clamp(20px, 4vw, 38px); margin: 0 0 7px;
 }
 #game.active {
-  position: relative; flex: 1; min-height: 0; display: grid;
+  position: relative; flex: 1 1 0; min-height: 0; display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto auto;
   grid-template-areas: "actions" "hud" "maze" "touch" "help"; gap: 5px;
 }
@@ -30,9 +30,9 @@ html, body { height: 100%; overflow: hidden; background: #1d365e; }
 }
 #game .boardbox {
   grid-area: maze; width: 100%; max-width: none; min-width: 0; min-height: 0;
-  margin: 0; background: #101d39;
+  margin: 0; background: #101d39; overflow: clip;
 }
-#game canvas { width: 100%; height: 100%; object-fit: contain; }
+#game canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 #game .dpad { grid-area: touch; margin: 0 auto; }
 #game .muted { grid-area: help; margin: 0; color: white; text-align: center; }
 #game .toast { position: absolute; z-index: 3; top: 35%; width: 100%; pointer-events: none; }
