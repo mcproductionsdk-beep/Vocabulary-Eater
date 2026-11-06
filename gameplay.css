@@ -29,7 +29,7 @@ html, body { height: 100%; overflow: hidden; background: #1d365e; }
   font-size: clamp(18px, 3vw, 25px); overflow-wrap: anywhere;
 }
 #game .boardbox {
-  grid-area: maze; width: 100%; max-width: none; min-width: 0; min-height: 0;
+  grid-area: maze; align-self: stretch; width: 100%; max-width: none; min-width: 0; min-height: 0;
   margin: 0; background: #101d39; overflow: clip;
 }
 #game canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
