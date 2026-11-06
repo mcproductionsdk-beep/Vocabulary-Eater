@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Vocabulary Eater — isolated preview</title>
-<style>body{margin:0;background:#101322;color:#fff;font:1rem system-ui}main{padding:1rem}button{padding:.65rem;margin:.2rem}iframe{border:0;width:100%;height:100dvh}iframe[hidden]{display:none}</style>
+<style>body{margin:0;background:#101322;color:#fff;font:1rem system-ui}main{padding:1rem}button{padding:.65rem;margin:.2rem}iframe{position:fixed;inset:0;display:block;border:0;width:100%;height:100%}iframe[hidden]{display:none}</style>
 <main><h1>Vocabulary Eater</h1><p>Isolated engine test with a fixed English–Spanish set.</p>
 <button data-engine="desktop">Test Desktop Maze</button>
 <button data-engine="responsive">Test Responsive Maze</button>
@@ -42,7 +42,7 @@ window.addEventListener('message', event => {
   if (type === 'BT_EATER_READY' && starting) {
     starting = false;
     frame.contentWindow.postMessage({type:'BT_EATER_START', pairs:fixture, language:'es-ES'}, location.origin);
-    frame.contentWindow.focus();
+    frame.focus({preventScroll:true});
   }
   if (type === 'BT_EATER_STARTED') clearTimeout(launchTimeout);
   if (type === 'BT_EATER_START_FAILED') stop('The engine rejected the test set.');
