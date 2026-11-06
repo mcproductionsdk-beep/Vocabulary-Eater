@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vocabulary Eater — isolated preview</title>
+<style>body{margin:0;background:#101322;color:#fff;font:1rem system-ui}main{padding:1rem}button{padding:.65rem;margin:.2rem}iframe{border:0;width:100%;height:100dvh}iframe[hidden]{display:none}</style>
+<main><h1>Vocabulary Eater</h1><p>Isolated engine test with a fixed English–Spanish set.</p>
+<button data-engine="desktop">Test Desktop Maze</button>
+<button data-engine="responsive">Test Responsive Maze</button>
+<p role="status"></p></main><iframe title="Vocabulary Eater gameplay" hidden></iframe>
+<script>
+const engines = {desktop:"desktop-prototype-game.html", responsive:"eater-game.html"};
+const fixture = [['cat','gato'],['dog','perro'],['mouse','ratón'],['bird','pájaro'],['fish','pez'],['rabbit','conejo']];
+const frame = document.querySelector('iframe');
+const menu = document.querySelector('main');
+const status = document.querySelector('[role=status]');
+let url;
+let starting = false;
+function stop(message = '') {
+  starting = false;
+  frame.hidden = true;
+  frame.removeAttribute('src');
+  url = undefined;
+  menu.hidden = false;
+  status.textContent = message;
+  window.speechSynthesis?.cancel();
+}
+document.querySelectorAll('[data-engine]').forEach(button => {
+  button.onclick = () => {
+    stop();
+    url = engines[button.dataset.engine];
+    starting = true;
+    frame.src = url;
+    menu.hidden = true;
+    frame.hidden = false;
+  };
+});
+window.addEventListener('message', event => {
+  if (!url || event.source !== frame.contentWindow || event.origin !== location.origin) return;
+  const {type, text, language} = event.data || {};
+  if (type === 'BT_EATER_READY' && starting) {
+    starting = false;
+    frame.contentWindow.postMessage({type:'BT_EATER_START', pairs:fixture, language:'es-ES'}, location.origin);
+    frame.contentWindow.focus();
+  }
+  if (type === 'BT_EATER_START_FAILED') stop('The engine rejected the test set.');
+  if (type === 'BT_EATER_MENU') stop();
+  if (type === 'BT_EATER_CANCEL_SPEECH') window.speechSynthesis?.cancel();
+  if (type === 'BT_EATER_SPEAK' && language === 'es-ES' && fixture.some(pair => pair[1] === text) && window.speechSynthesis) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  }
+});
+</script></html>
