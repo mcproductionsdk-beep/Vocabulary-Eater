@@ -3,11 +3,10 @@
 <title>Vocabulary Eater — isolated preview</title>
 <style>body{margin:0;background:#101322;color:#fff;font:1rem system-ui}main{padding:1rem}button{padding:.65rem;margin:.2rem}iframe{position:fixed;inset:0;display:block;border:0;width:100%;height:100%}iframe[hidden]{display:none}</style>
 <main><h1>Vocabulary Eater</h1><p>Isolated engine test with a fixed English–Spanish set.</p>
-<button data-engine="desktop">Test Desktop Maze</button>
-<button data-engine="responsive">Test Responsive Maze</button>
+<button id="test-eater">Test Vocabulary Eater</button>
 <p role="status"></p></main><iframe title="Vocabulary Eater gameplay" hidden></iframe>
 <script>
-const engines = {desktop:"desktop-prototype-game.html", responsive:"eater-game.html"};
+const engineUrl = "eater-game.html";
 const fixture = [['cat','gato'],['dog','perro'],['mouse','ratón'],['bird','pájaro'],['fish','pez'],['rabbit','conejo']];
 const frame = document.querySelector('iframe');
 const menu = document.querySelector('main');
@@ -25,17 +24,15 @@ function stop(message = '') {
   status.textContent = message;
   window.speechSynthesis?.cancel();
 }
-document.querySelectorAll('[data-engine]').forEach(button => {
-  button.onclick = () => {
+document.querySelector('#test-eater').onclick = () => {
     stop();
-    url = engines[button.dataset.engine];
+    url = engineUrl;
     starting = true;
     frame.src = url;
     menu.hidden = true;
     frame.hidden = false;
-    launchTimeout = setTimeout(() => stop('The maze did not start. Try either test button again.'), 8000);
-  };
-});
+    launchTimeout = setTimeout(() => stop('The maze did not start. Try the test button again.'), 8000);
+};
 window.addEventListener('message', event => {
   if (!url || event.source !== frame.contentWindow || event.origin !== location.origin) return;
   const {type, text, language} = event.data || {};
