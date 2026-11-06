@@ -14,7 +14,9 @@ const menu = document.querySelector('main');
 const status = document.querySelector('[role=status]');
 let url;
 let starting = false;
+let launchTimeout;
 function stop(message = '') {
+  clearTimeout(launchTimeout);
   starting = false;
   frame.hidden = true;
   frame.removeAttribute('src');
@@ -31,6 +33,7 @@ document.querySelectorAll('[data-engine]').forEach(button => {
     frame.src = url;
     menu.hidden = true;
     frame.hidden = false;
+    launchTimeout = setTimeout(() => stop('The maze did not start. Try either test button again.'), 8000);
   };
 });
 window.addEventListener('message', event => {
@@ -41,6 +44,7 @@ window.addEventListener('message', event => {
     frame.contentWindow.postMessage({type:'BT_EATER_START', pairs:fixture, language:'es-ES'}, location.origin);
     frame.contentWindow.focus();
   }
+  if (type === 'BT_EATER_STARTED') clearTimeout(launchTimeout);
   if (type === 'BT_EATER_START_FAILED') stop('The engine rejected the test set.');
   if (type === 'BT_EATER_MENU') stop();
   if (type === 'BT_EATER_CANCEL_SPEECH') window.speechSynthesis?.cancel();
